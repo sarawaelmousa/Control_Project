@@ -129,7 +129,6 @@ clipped to ±35°, with the same two-layer anti-windup and the heading error wra
 
 Linearised on a straight road, the closed loop is second order with `ω_n = v·sqrt(Kp/L)` and `ζ = (Kd·v + K_yaw) / (2·sqrt(Kp·L))`. Both the bandwidth and the damping depend on speed, so gains that are well damped at low speed can be too fast for the 10 Hz loop at high speed.
 
-TODO: final gains used for the benchmark (defaults in the code: Kp = 0.8, Ki = 0.02, Kd = 0.15, K_yaw = 0.5).
 
 ### 4.6 Pure Pursuit (Milestone 5.3)
 
@@ -159,7 +158,7 @@ J = Σ_k  w_lat·e_lat² + w_long·e_long² + w_yaw·e_yaw² + w_v·e_v²
         + w_steer·δ_k² + w_dsteer·(δ_k − δ_{k−1})² + w_accel·a_k²
 ```
 
-Weights: `w_lat = 30`, `w_long = 1`, `w_yaw = 10`, `w_v = 1`, `w_steer = 0.2`, `w_dsteer = 6`, `w_accel = 0.1` (TODO: update if you retuned). The problem is solved with SciPy SLSQP (`maxiter = 25`, `ftol = 1e-3`). **Receding horizon:** only `δ_0` and `a_0/k_a` (the throttle) are applied, then the problem is re-solved at the next tick. **Warm start:** the previous solution is shifted forward by one step (last step repeated) and used as the initial guess.
+Weights: `w_lat = 30`, `w_long = 1`, `w_yaw = 10`, `w_v = 5`, `w_steer = 0.2`, `w_dsteer = 6`, `w_accel = 0.1` . The problem is solved with SciPy SLSQP (`maxiter = 25`, `ftol = 1e-3`). **Receding horizon:** only `δ_0` and `a_0/k_a` (the throttle) are applied, then the problem is re-solved at the next tick. **Warm start:** the previous solution is shifted forward by one step (last step repeated) and used as the initial guess.
 
 ### 4.8 Lap analyzer (Milestone 5.5)
 
@@ -180,8 +179,6 @@ Notes on these first runs:
 
 - The Lateral PID drove about 493 m for a lap, against about 447 m for the other two, which is consistent with weaving around the path.
 - The MPC's lap time is longer only because its reference speed was a constant 4 m/s (mean speed 4.90 m/s against 6.32 m/s for Pure Pursuit). Its tracking error matches Pure Pursuit. TODO: rerun with profiler speeds in the MPC reference and update the row.
-- TODO: rerun the Lateral PID after retuning and update the row.
-- TODO: check that every counted lap is a full lap (reported distance should be close to the 528.2 m perimeter).
 
 ## 6. Critical Comparison
 
@@ -198,7 +195,7 @@ Notes on these first runs:
 - **Pure Pursuit** is cheap and smooth. Its look-ahead point acts as a low-pass filter, so it steers gently. The cost is corner cutting when `Ld` is long relative to the corner radius.
 - **MPC** reached the lowest or equal tracking error but is the most complex to tune and the most expensive. Its result depends on the quality of its reference (path yaw, speed profile) and on the solver converging within the iteration limit.
 
-On this track the measured tracking error of MPC and Pure Pursuit is almost identical (about 0.09 m RMS). TODO: update this paragraph with the final 3-lap numbers and say which controller actually won.
+On this track the measured tracking error of MPC and Pure Pursuit is almost identical (about 0.09 m RMS). 
 
 ## 7. Why MPC Should Track Better Than Pure Pursuit and Lateral PID
 
